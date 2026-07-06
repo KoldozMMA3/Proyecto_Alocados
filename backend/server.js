@@ -172,20 +172,43 @@ const verificarToken = (req, res, next) => {
 
 // Registro de Compra Transactional Outbox (No cambia)
 app.post('/api/comprar', verificarToken, async (req, res) => {
-    const { total, items } = req.body;
+    const { total, items, numeroOperacion } = req.body;
     const usuarioId = req.usuario.id;
+
     const client = await pool.connect();
     try {
-        await client.query('BEGIN');
-        const resPedido = await client.query('INSERT INTO pedidos (usuario_id, total) VALUES ($1, $2) RETURNING id', [usuarioId, total]);
+        await client.query('BEGIN'); // Transacción Atómica
+
+        // Guardamos el pedido enlazando el código de operación de Yape
+        const resPedido = await client.query(
+            'INSERT INTO pedidos (usuario_id, total, numero_operacion) VALUES ($1, $2, $3) RETURNING id, creado_en',
+            [usuarioId, total, numeroOperacion]
+        );
         const pedidoId = resPedido.rows[0].id;
-        const payload = { pedidoId, usuarioId, email: req.usuario.email, total, items };
-        await client.query("INSERT INTO outbox (tipo_evento, payload, estado) VALUES ($1, $2, 'PENDIENTE')", ['COMPRA_REALIZADA', JSON.stringify(payload)]);
-        await client.query('COMMIT');
+        const fechaPedido = resPedido.rows[0].creado_en;
+
+        const payload = {
+            pedidoId,
+            usuarioId,
+            email: req.usuario.email,
+            total,
+            items,
+            numeroOperacion,
+            fecha: fechaPedido
+        };
+
+        // El evento se inserta en estado PENDIENTE dentro del mismo bloque relacional
+        await client.query(
+            "INSERT INTO outbox (tipo_evento, payload, estado) VALUES ($1, $2, 'PENDIENTE')",
+            ['COMPRA_REALIZADA', JSON.stringify(payload)]
+        );
+
+        await client.query('COMMIT'); 
         res.status(201).json({ mensaje: "Compra registrada con éxito", pedidoId });
     } catch (error) {
         await client.query('ROLLBACK');
-        res.status(500).json({ error: "Error al procesar la transacción." });
+        console.error(error);
+        res.status(500).json({ error: "Fallo crítico en el procesamiento de la compra." });
     } finally {
         client.release();
     }

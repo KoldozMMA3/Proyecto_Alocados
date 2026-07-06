@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaShoppingCart, FaUser, FaSignOutAlt } from 'react-icons/fa';
-import { useCart } from '../state/cartContext';
-import Login from './Login'; // Importamos el modal emergente
+import { useCart } from '../state/cartContext'; // Usamos tu contexto real
+import Login from './Login';
 
 function Header() {
     const { cartItems, total } = useCart();
-    
-    // Estados para controlar el modal y el usuario
     const [showLogin, setShowLogin] = useState(false);
     const [usuario, setUsuario] = useState(null);
 
-    // Revisar si ya hay una sesión activa al cargar la página
     useEffect(() => {
         const emailGuardado = localStorage.getItem('email_usuario');
         if (emailGuardado) {
@@ -19,12 +16,11 @@ function Header() {
         }
     }, []);
 
-    // Función para cerrar sesión
     const handleLogout = () => {
         localStorage.removeItem('token_alocados');
         localStorage.removeItem('email_usuario');
         setUsuario(null);
-        window.location.reload(); // Recargar para limpiar estados globales si los hay
+        window.location.reload();
     };
 
     return (
@@ -38,13 +34,13 @@ function Header() {
                         Alocados Restobar
                     </Link>
 
-                    {/* Navegación y Botones */}
+                    {/* Navegación - Rutas corregidas según tu App.jsx */}
                     <nav className="flex items-center gap-6 text-white font-medium">
                         <Link to="/" className="hover:text-red-300 transition-colors">Inicio</Link>
                         <Link to="/menu" className="hover:text-red-300 transition-colors">Menú</Link>
-                        <Link to="/about" className="hover:text-red-300 transition-colors">Nosotros</Link>
+                        <Link to="/unamonos" className="hover:text-red-300 transition-colors">Unámonos</Link>
                         
-                        <Link to="/cart" className="hover:text-red-300 transition-colors inline-flex items-center">
+                        <Link to="/carrito" className="hover:text-red-300 transition-colors inline-flex items-center">
                             <FaShoppingCart className="mr-2" />
                             Carrito
                             {cartItems && cartItems.length > 0 && (
@@ -54,7 +50,7 @@ function Header() {
                             )}
                         </Link>
 
-                        {/* Validar si el usuario está logueado o no */}
+                        {/* Estado de la Sesión */}
                         {usuario ? (
                             <div className="flex items-center gap-4 ml-4 pl-4 border-l border-red-500">
                                 <span className="text-sm font-semibold text-yellow-300 hidden md:block">
@@ -63,7 +59,6 @@ function Header() {
                                 <button 
                                     onClick={handleLogout} 
                                     className="bg-red-800 hover:bg-red-900 text-white px-3 py-1.5 rounded-lg text-sm transition-colors flex items-center gap-2"
-                                    title="Cerrar Sesión"
                                 >
                                     <FaSignOutAlt />
                                     Salir
@@ -82,7 +77,7 @@ function Header() {
                 </div>
             </header>
 
-            {/* Renderizar el Modal Emergente si showLogin es true */}
+            {/* Ventana Emergente */}
             {showLogin && <Login onClose={() => setShowLogin(false)} />}
         </>
     );
