@@ -67,6 +67,11 @@ async function procesarOutboxEnvioRecibos() {
                                     <th style="padding: 10px; text-align: center; color: #374151;">Cant.</th>
                                     <th style="padding: 10px; text-align: right; color: #374151;">Total</th>
                                 </tr>
+                                // Dentro de la plantilla HTML en worker.js, añade este bloque:
+                                <tr>
+                                    <td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Dirección de entrega:</strong></td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${p.direccion}</td>
+                                </tr>
                             </thead>
                             <tbody>
                                 ${filasProductosHTML}

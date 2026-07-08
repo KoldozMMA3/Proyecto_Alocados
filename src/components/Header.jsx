@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaShoppingCart, FaUser, FaSignOutAlt } from 'react-icons/fa';
-import { useCart } from '../state/cartContext'; // Usamos tu contexto real
+import { FaShoppingCart, FaUser, FaSignOutAlt, FaGlobe, FaClipboardList } from 'react-icons/fa'; // <-- AQUÍ ESTABA EL ERROR
+import { useCart } from '../state/cartContext';
+import { useLanguage } from '../state/languageContext'; 
 import Login from './Login';
 
 function Header() {
     const { cartItems, total } = useCart();
+    const { language, changeLanguage, t } = useLanguage(); 
+          
     const [showLogin, setShowLogin] = useState(false);
     const [usuario, setUsuario] = useState(null);
 
@@ -27,57 +30,77 @@ function Header() {
         <>
             <header className="bg-red-700 shadow-lg sticky top-0 z-40 font-body">
                 <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-                    
+                                          
                     {/* Logo */}
-                    <Link to="/" className="text-2xl font-bold text-white flex items-center gap-2">
-                        <span className="bg-white text-red-700 px-2 py-1 rounded-md">AR</span>
-                        Alocados Restobar
+                    <Link to="/" className="text-3xl font-extrabold text-white tracking-wide font-display">
+                        ALOCADOS
                     </Link>
 
-                    {/* Navegación - Rutas corregidas según tu App.jsx */}
-                    <nav className="flex items-center gap-6 text-white font-medium">
-                        <Link to="/" className="hover:text-red-300 transition-colors">Inicio</Link>
-                        <Link to="/menu" className="hover:text-red-300 transition-colors">Menú</Link>
-                        <Link to="/unamonos" className="hover:text-red-300 transition-colors">Unámonos</Link>
-                        
+                    {/* Navegación Traducida */}
+                    <nav className="space-x-6 text-sm sm:text-base text-white flex items-center">
+                        <Link to="/" className="hover:text-red-300 transition-colors">{t('navInicio')}</Link>
+                        <Link to="/menu" className="hover:text-red-300 transition-colors">{t('navMenu')}</Link>
+                        <Link to="/unamonos" className="hover:text-red-300 transition-colors">{t('navUnamonos')}</Link>
+                                                  
                         <Link to="/carrito" className="hover:text-red-300 transition-colors inline-flex items-center">
-                            <FaShoppingCart className="mr-2" />
-                            Carrito
+                            <FaShoppingCart className="mr-1" />
+                            {t('navCarrito')}
                             {cartItems && cartItems.length > 0 && (
                                 <span className="ml-2 bg-white text-red-700 font-bold rounded-full px-2 py-0.5 text-xs">
                                     S/. {total.toFixed(2)}
                                 </span>
                             )}
                         </Link>
+                        
+                        {/* SELECTOR DE IDIOMA */}
+                        <div className="flex items-center gap-1 bg-red-800 px-2 py-1 rounded border border-red-600 ml-2">
+                            <FaGlobe className="text-xs text-red-200" />
+                            <select 
+                                value={language} 
+                                onChange={(e) => changeLanguage(e.target.value)}
+                                className="bg-transparent text-white text-xs font-bold focus:outline-none cursor-pointer"
+                            >
+                                <option value="es" className="text-black font-sans">ES</option>
+                                <option value="en" className="text-black font-sans">EN</option>
+                                <option value="pt" className="text-black font-sans">PT</option>
+                            </select>
+                        </div>
 
-                        {/* Estado de la Sesión */}
+                        {/* Autenticación UI Traducida */}
                         {usuario ? (
-                            <div className="flex items-center gap-4 ml-4 pl-4 border-l border-red-500">
+                            <div className="flex items-center gap-4 ml-2 pl-4 border-l border-red-500">
                                 <span className="text-sm font-semibold text-yellow-300 hidden md:block">
-                                    Hola, {usuario.split('@')[0]}
+                                    {t('hola')}, {usuario.split('@')[0]}
                                 </span>
+                                  
+                                {/* BOTÓN: MIS PEDIDOS */}
+                                <Link to="/mis-pedidos" className="hover:text-red-300 transition-colors flex items-center gap-1 text-sm font-bold">
+                                    <FaClipboardList />
+                                    {t('navMisPedidos')}
+                                </Link>
+
                                 <button 
                                     onClick={handleLogout} 
                                     className="bg-red-800 hover:bg-red-900 text-white px-3 py-1.5 rounded-lg text-sm transition-colors flex items-center gap-2"
                                 >
                                     <FaSignOutAlt />
-                                    Salir
+                                    {t('btnSalir')}
                                 </button>
                             </div>
                         ) : (
                             <button 
                                 onClick={() => setShowLogin(true)} 
-                                className="hover:text-red-300 transition-colors inline-flex items-center ml-4 pl-4 border-l border-red-500 font-bold"
+                                className="hover:text-red-300 transition-colors inline-flex items-center ml-2 pl-4 border-l border-red-500 font-bold"
                             >
-                                <FaUser className="mr-2" />
-                                Ingresar
+                                <FaUser className="mr-1" />
+                                {t('btnIngresar')}
                             </button>
                         )}
                     </nav>
                 </div>
             </header>
 
-            {/* Ventana Emergente */}
+            {/* Modal de login traducido */}
             {showLogin && <Login onClose={() => setShowLogin(false)} />}
         </>
     );

@@ -214,4 +214,27 @@ app.post('/api/comprar', verificarToken, async (req, res) => {
     }
 });
 
+// ==========================================
+// OBTENER HISTORIAL Y ESTADO DE PEDIDOS (GET)
+// ==========================================
+app.get('/api/mis-pedidos', verificarToken, async (req, res) => {
+    const usuarioId = req.usuario.id;
+
+    try {
+        // Consultamos la tabla de pedidos filtrando por el ID del usuario logueado
+        const result = await pool.query(
+            `SELECT id, total, numero_operacion, creado_en 
+             FROM pedidos 
+             WHERE usuario_id = $1 
+             ORDER BY creado_en DESC`,
+            [usuarioId]
+        );
+
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error obteniendo pedidos:', error);
+        res.status(500).json({ error: "No se pudo obtener el historial de pedidos." });
+    }
+});
+
 app.listen(process.env.PORT, () => console.log(`API activa en el puerto ${process.env.PORT}`));
