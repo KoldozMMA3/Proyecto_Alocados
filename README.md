@@ -55,11 +55,11 @@ CREATE TABLE pedidos (
 
 # Ejecución de Servicios 
 
--En la carpeta del backend
+-En la carpeta del backend:
 node server.js
 
 -Servidor Frontend:
-En la raíz del proyecto 
+En la raíz del proyecto: 
 npm run dev
 
 -Servicio de Notificaciones (Worker):
